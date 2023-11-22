@@ -52,6 +52,7 @@ export const updateUser = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.user._id, req.body, {
       new: true,
+      runValidators: true,
     });
     return res.status(200).send(user);
   } catch (error) {
