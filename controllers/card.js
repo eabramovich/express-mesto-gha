@@ -1,4 +1,4 @@
-import Card from "../modules/Card";
+import Card from "../modules/Card.js";
 
 export const getCards = async (req, res) => {
   try {
