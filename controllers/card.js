@@ -62,7 +62,7 @@ export const likeCardById = async (req, res) => {
       {
         $addToSet: { likes: req.user._id },
       },
-      { new: true }
+      { new: true, runValidators: true,}
     ).populate("likes");
     if (!card) {
       throw new Error("NotFound");
@@ -93,7 +93,7 @@ export const deleteLikeCardById = async (req, res) => {
       {
         $pull: { likes: req.user._id },
       },
-      { new: true }
+      { new: true, runValidators: true,}
     ).populate("likes");
     if (!card) {
       throw new Error("NotFound");

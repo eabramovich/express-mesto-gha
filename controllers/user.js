@@ -72,7 +72,7 @@ export const updateUserAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true }
+      { new: true, runValidators: true, }
     );
     return res.status(200).send(user);
   } catch (error) {
