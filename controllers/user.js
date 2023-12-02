@@ -77,13 +77,13 @@ export const login = async (req, res, next) => {
     }
 
     const token = generateToken({ _id: user._id, email: user.email });
-    res.cookie("mestoToken", token, {
-      httpOnly: true,
-      sameSite: true,
-      maxAge: 60000,
-    });
+    // res.cookie("mestoToken", token, {
+    //   httpOnly: true,
+    //   sameSite: true,
+    //   maxAge: 60000,
+    // });
 
-    //res.send({ token: token });
+    res.send({ token: token });
     res.send({ email: user.email });
   } catch (error) {
     next(error);
