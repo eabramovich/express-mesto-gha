@@ -94,7 +94,7 @@ export const login = async (req, res, next) => {
     // });
 
     res.send({ token: token });
-    res.send({ email: user.email });
+    //res.send({ email: user.email });
   } catch (error) {
     next(error);
   }
