@@ -1,33 +1,48 @@
 import mongoose from 'mongoose';
+import isEmail from 'validator/lib/isemail';
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: {
-        value: true,
-        message: 'Поле является обязательным',
-      },
+      default: 'Жак-Ив Кусто',
       minlength: [2, 'Минимальная длина 2 символа'],
       maxlength: [30, 'Максимальная длина 30 символов'],
     },
     about: {
       type: String,
-      required: {
-        value: true,
-        message: 'Поле является обязательным',
-      },
+      default: 'Исследователь',
       minlength: [2, 'Минимальная длина 2 символа'],
       maxlength: [30, 'Максимальная длина 30 символов'],
     },
     avatar: {
       type: String,
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    },
+    email: {
+      type: String,
       required: {
         value: true,
-        message: 'Поле является обязательным',
-      }
+        message: 'Поле email является обязательным',
+      },
+      unique: true,
+      validate: {
+        validator: function(v) {
+          return isEmail(v);
+        },
+        message: (props) => `${props.value} is not a valid email`,
+      },
     },
-  }
+    password: {
+      type: String,
+      required: {
+        value: true,
+        message: 'Поле password является обязательным',
+      },
+      minlength: 8,
+      select: false,
+    },
+  }, {versionKey: false, timestamps: true}
 );
 
 export default mongoose.model('user', userSchema);

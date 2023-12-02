@@ -1,21 +1,52 @@
-import express, { json } from 'express';
-import mongoose from 'mongoose';
-import router from './routes/index.js';
+import express, { json } from "express";
+import mongoose from "mongoose";
+import router from "./routes/index.js";
+import cookieParser from "cookie-parser";
+import { createUser, login } from "./controllers/user.js";
+import { celebrate, Joi, errors } from "celebrate";
+
+const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
 const app = express();
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: '655cb28a76d6493d6084e92e' //временное решение для авторизации
-  };
-
-  next();
-});
+mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
 
 app.use(json());
+app.use(cookieParser());
+app.post("/signin", celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post("/signup", createUser);
 app.use(router);
 
+app.use(errors());
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message } = err;
+
+  if (err.name === 'CastError') {
+    statusCode = 400;
+    message = 'Передан невалидный id';
+  }
+
+  if (err.name === 'ValidationError') {
+    statusCode = 400;
+    message = 'Ошибка валидации полей ' + err;
+  }
+
+  if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+    statusCode = 409;
+    message = 'Пользователь с таким email уже зарегистрирован в системе';
+  }
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500 ? "На сервере произошла ошибка" : message,
+    });
+});
+
 app.listen(3000, () => {
-  console.log('Server listen port $(3000)');
+  console.log("Server listen port $(3000)");
 });
