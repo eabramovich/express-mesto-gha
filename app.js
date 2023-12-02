@@ -4,6 +4,7 @@ import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import { createUser, login } from "./controllers/user.js";
 import { celebrate, Joi, errors } from "celebrate";
+import { urlPattern } from "./utils/constants.js";
 
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
@@ -18,7 +19,16 @@ app.post("/signin", celebrate({
     password: Joi.string().required().min(8),
   }),
 }), login);
-app.post("/signup", createUser);
+
+app.post("/signup", celebrate({
+  body:Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string.pattern(new RegExp(urlPattern)),
+  }),
+}),createUser);
 app.use(router);
 
 app.use(errors());
