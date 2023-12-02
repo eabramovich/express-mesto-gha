@@ -9,7 +9,7 @@ export const getUsers = async (req, res, next) => {
     const users = await User.find({});
     res.send(users);
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -32,9 +32,17 @@ export const createUser = async (req, res, next) => {
     const hash = await bcrypt.hash(req.body.password, SOLT_ROUNDS);
     req.body.password = hash;
     const newUser = await new User(req.body).save();
-    return res.status(201).send({ email: newUser.email, _id: newUser._id });
+    return res
+      .status(201)
+      .send({
+        name: newUser.name,
+        about: newUser.about,
+        avatar: newUser.avatar,
+        email: newUser.email,
+        _id: newUser._id,
+      });
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -69,11 +77,13 @@ export const login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email })
       .select("+password")
-      .orFail((err) => new NotAuthenticateError('Неправильный email или password'));
+      .orFail(
+        (err) => new NotAuthenticateError("Неправильный email или password")
+      );
 
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
-      throw new NotAuthenticateError('Неправильный email или password');
+      throw new NotAuthenticateError("Неправильный email или password");
     }
 
     const token = generateToken({ _id: user._id, email: user.email });
