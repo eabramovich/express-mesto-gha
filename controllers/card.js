@@ -1,5 +1,6 @@
 import Card from "../modules/Card.js";
 import { NotFoundError } from "../errors/not-found-err.js";
+import { ForbiddenError } from "../errors/forbidden-err.js";
 
 export const getCards = async (req, res, next) => {
   try {
@@ -23,11 +24,16 @@ export const createCard = async (req, res, next) => {
 export const deleteCardById = async (req, res, next) => {
   try {
     const { idCard } = req.params;
-    const card = await Card.findByIdAndDelete(idCard);
+    const card = await Card.findById(idCard).populate("owner");
     if (!card) {
       throw new NotFoundError("Карточка с данным id не найдена");
     }
-    return res.status(200).send(card);
+    if (String(card.owner._id) != req.user._id) {
+      throw new ForbiddenError("Можно удалять только собственные карточки");
+    }
+
+    const deletedCard = await card.deleteOne();
+    return res.status(200).send({ message: "Карточка удалена" });
   } catch (error) {
     next(error);
   }
