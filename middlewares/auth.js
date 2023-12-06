@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { NotAuthenticateError } from "../errors/not-authenticate-err";
+import { NotAuthenticateError } from "../errors/not-authenticate-err.js";
 const { JWT_SECRET, NODE_ENV } = process.env;
 
 export default function (req, res, next) {
