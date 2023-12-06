@@ -1,5 +1,5 @@
 import { Joi, celebrate } from "celebrate";
-import { urlPattern } from "../utils/constants";
+import { urlPattern } from "../utils/constants.js";
 
 export default celebrate({
   body: Joi.object().keys({
