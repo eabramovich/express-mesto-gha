@@ -23,8 +23,8 @@ export const createCard = async (req, res, next) => {
 
 export const deleteCardById = async (req, res, next) => {
   try {
-    const { idCard } = req.params;
-    const card = await Card.findById(idCard).populate("owner");
+    const { cardId } = req.params;
+    const card = await Card.findById(cardId).populate("owner");
     if (!card) {
       throw new NotFoundError("Карточка с данным id не найдена");
     }

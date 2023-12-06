@@ -1,4 +1,5 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { NotAuthenticateError } from "../errors/not-authenticate-err";
 const { JWT_SECRET, NODE_ENV } = process.env;
 
 export default function (req, res, next) {
@@ -6,21 +7,13 @@ export default function (req, res, next) {
   try {
     const { authorization } = req.headers;
     //const token = req.cookies.mestoToken;
-    if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new Error('NotAuthenticate');
+    if (!authorization || !authorization.startsWith("Bearer ")) {
+      throw new NotAuthenticateError("Необходима авторизация");
     }
-    const token = authorization.replace('Bearer ', '');
-    payload = jwt.verify(token, NODE_ENV ? JWT_SECRET : 'some-secret-key');
+    const token = authorization.replace("Bearer ", "");
+    payload = jwt.verify(token, NODE_ENV ? JWT_SECRET : "some-secret-key");
   } catch (error) {
-    if (error.message === 'NotAuthenticate') {
-      return res.status(401).send({ message: 'Необходима авторизация' });
-    }
-
-    if(error.name = 'JsonWebTokenError') {
-      return res.status(401).send({ message: 'Необходима авторизация' });
-    }
-
-    return res.status(500).send({ message: "Ошибка на стороне сервера" });
+    next(error);
   }
 
   req.user = payload;

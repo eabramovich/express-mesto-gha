@@ -2,9 +2,7 @@ import express, { json } from "express";
 import mongoose from "mongoose";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
-import { createUser, login } from "./controllers/user.js";
-import { celebrate, Joi, errors } from "celebrate";
-import { urlPattern } from "./utils/constants.js";
+import { errors } from "celebrate";
 
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
@@ -13,24 +11,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
 
 app.use(json());
 app.use(cookieParser());
-app.post("/signin", celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
-
-app.post("/signup", celebrate({
-  body:Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(new RegExp(urlPattern)),
-  }),
-}),createUser);
 app.use(router);
-
 app.use(errors());
 app.use((err, req, res, next) => {
   let { statusCode = 500, message } = err;
@@ -43,6 +24,10 @@ app.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
     statusCode = 400;
     message = 'Ошибка валидации полей ' + err;
+  }
+
+  if(err.name === 'JsonWebTokenError') {
+    return res.status(401).send({ message: 'С токеном что-то не так' });
   }
 
   if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
